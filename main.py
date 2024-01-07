@@ -1,3 +1,6 @@
+import random
+
+
 class BoardOutException(Exception):
 	pass
 
@@ -84,7 +87,7 @@ class Board:
 			raise BoardOutException('Сюда уже стреляли')
 
 		for ship in self.ships:
-			if dot is ship.dots():
+			if dot in ship.dots():
 				self.board[dot.x][dot.y] = 'X'
 				ship.health_point -= 1
 				if ship.health_point == 0:
@@ -94,23 +97,57 @@ class Board:
 					return True
 				else:
 					print('Попал, стреляй еще')
-					return False
+					return True
 		self.board[dot.x][dot.y] = 'T'
 		print('Промахнулся...')
 		return False
 
 
+class Player:
+	def __init__(self):
+		self.own_board = Board()
+		self.enemy_board = Board()
+
+	def ask(self):
+		pass
+
+	def move(self):
+		while True:
+			try:
+				dot = self.ask()
+				shot_result = self.enemy_board.shot(dot)
+				if shot_result is True:
+					return True
+				else:
+					return False
+			except Exception as e:
+				print(f'Error: {str(e)}. Пожалуйста попробуй еще.')
+
+
+class AI(Player):
+	def ask(self):
+		dot = (random.randint(0, 5),random.randint(0, 5))
+		return dot
+
+
+class User(Player):
+	def ask(self):
+		x = int(input("Введите номер строки:"))
+		y = int(input("Введите номер столбца:"))
+		return x, y
 
 
 ship = Ship(3, Dot(0, 0), 'вертикальное')
 ship2 = Ship(2, Dot(3,3), 'горизонтальное')
 ship3 = Ship(1, Dot(5,5), 'd')
 s1 = Board()
+
 s1.add_ship(ship)
 s1.add_ship(ship2)
 s1.add_ship(ship3)
 
+
 s1.display()
-s1.shot(Dot(4, 3))
+s1.shot(Dot(4, 4))
 s1.shot(Dot(3, 3))
 s1.display()
