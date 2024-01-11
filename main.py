@@ -134,20 +134,48 @@ class User(Player):
 	def ask(self):
 		x = int(input("Введите номер строки:"))
 		y = int(input("Введите номер столбца:"))
-		return x, y
+		return Dot(x, y)
 
 
-ship = Ship(3, Dot(0, 0), 'вертикальное')
-ship2 = Ship(2, Dot(3,3), 'горизонтальное')
-ship3 = Ship(1, Dot(5,5), 'd')
-s1 = Board()
+class Game:
+	def __init__(self):
+		self.player_user = User()
+		self.user_board = Board()
+		self.player_ai = AI()
+		self.ai_board = Board()
+		self.random_board(self.player_user.enemy_board)
+		self.random_board(self.player_ai.enemy_board)
 
-s1.add_ship(ship)
-s1.add_ship(ship2)
-s1.add_ship(ship3)
+	def random_board(self, board):
+		self.ships = [3, 2, 2, 1, 1, 1]
+		for i in self.ships:
+			while True:
+				direction = random.choice(['вертикальное', 'горизонтальное'])
+				if direction == 'вертикальное':
+					x, y = random.randint(0, 5), random.randint(0, 5 - i)
+				else:
+					x, y = random.randint(0, 5 - i), random.randint(0, 5)
+
+				ship = Ship(i, Dot(x, y), direction)
+				try:
+					board.add_ship(ship)
+					break
+				except BoardOutException:
+					continue
 
 
-s1.display()
-s1.shot(Dot(4, 4))
-s1.shot(Dot(3, 3))
-s1.display()
+	def greet(self):
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
