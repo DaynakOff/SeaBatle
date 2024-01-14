@@ -36,14 +36,12 @@ class Ship:
 
 
 class Board:
-	def __init__(self):
+	def __init__(self, own=True):
 		self.board = [['0' for _ in range(6)] for _ in range(6)]
 		self.ships = []
 		self.hid = False
 		self.live_ships = 0
-		self.contoured = [[False for _ in range(6)] for _ in range(6)]
-		self.missed = [[False for _ in range(6)] for _ in range(6)]
-		self.destroyed = [[False for _ in range(6)] for _ in range(6)]
+		self.shooting = [[False for _ in range(6)] for _ in range(6)]
 
 
 	def add_ship(self, ship):
@@ -64,31 +62,38 @@ class Board:
 		for row in range(6):
 			print(f'{row+1}|', end='')
 			for col in range(6):
-				if self.hid and self.board[row][col] == '■' and not any(
-						[s.health_point for s in self.ships if Dot(row, col) in s.dots()]):
-					print('Т|', end='')
-				elif self.hid and not self.destroyed[row][col] and (
-						self.board[row][col] == '■' or (self.contoured[row][col] and not self.missed[row][col])):
+				if self.hid and (self.board[row][col] == '■' or self.board[row][col] == '.'):
 					print('0|', end='')
+				elif self.shooting[row][col]:
+					print(f'{self.board[row][col]}|', end='')
+
 				else:
 					print(f'{self.board[row][col]}|', end='')
 			print()
 
-	def contour(self, ship, destroy=False):
+	def contour(self, ship):
 		for dot in ship.dots():
-			for j in range(dot.y-1, dot.y + 2):
-				for i in range(dot.x-1, dot.x + 2):
-					if not self.out(Dot(i, j)):
-						if self.board[i][j] == '0':
-							self.board[i][j] = '.' if not destroy else 'Т'
-							self.contoured[i][j] = True
-							if destroy:
-								self.destroyed[i][j] = True
+			if not self.shooting[dot.x][dot.y]:
+				for j in range(dot.y-1, dot.y + 2):
+					for i in range(dot.x-1, dot.x + 2):
+						if not self.out(Dot(i, j)):
+							if self.board[i][j] == '0' or self.board[i][j] == 'Т':
+								self.board[i][j] = '.'
+			else:
+				for j in range(dot.y - 1, dot.y + 2):
+					for i in range(dot.x - 1, dot.x + 2):
+						if not self.out(Dot(i, j)):
+							if self.board[i][j] == '.' or self.board[i][j] == 'Т':
+								self.board[i][j] = 'Т'
+
+
+
 
 	def out(self, dot):
 		return dot.x < 0 or dot.x >= 6 or dot.y < 0 or dot.y >= 6
 
-	def shot(self,dot):
+	def shot(self, dot):
+		self.shooting[dot.x][dot.y] = True
 		if self.out(dot):
 			raise BoardOutException('Не стреляй мимо поля')
 		if self.board[dot.x][dot.y] == 'X' or self.board[dot.x][dot.y] == 'Т':
@@ -100,16 +105,14 @@ class Board:
 				ship.health_point -= 1
 				if ship.health_point == 0:
 					self.live_ships -= 1
-					self.contour(ship, True)
-					for d in ship.dots():
-						self.destroyed[d.x][d.y] = True
+					self.contour(ship)
+
 					print('Корабль уничтожен')
 					return True
 				else:
 					print('Попал, стреляй еще')
 					return True
 		self.board[dot.x][dot.y] = 'Т'
-		self.missed[dot.x][dot.y] = True
 		print('Промахнулся...')
 		return False
 
@@ -122,7 +125,7 @@ class Player:
 	def ask(self):
 		pass
 
-	def move(self, enemy_board):
+	def move(self):
 		while True:
 			try:
 				dot = self.ask()
@@ -225,20 +228,4 @@ class Game:
 
 s1 = Game()
 s1.start()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
