@@ -200,26 +200,26 @@ class Game:
 			self.player_user.own_board.display()
 			print('Доска противника:')
 			self.player_user.enemy_board.display()
-			while self.player_user.move(self.player_ai.own_board):
+			while self.player_user.move():
 				print('Ваша доска:')
 				self.player_user.own_board.display()
 				print('Доска противника:')
 				self.player_user.enemy_board.display()
-			if self.player_ai.own_board.live_ships == 0:
-				print("Пользователь выиграл!")
-				break
+				if self.player_ai.own_board.live_ships == 0:
+					print("Пользователь выиграл!")
+					return
 			print('Доска ИИ:')
 			self.player_ai.own_board.display()
 			print('Ваша доска:')
 			self.player_user.own_board.display()
-			while self.player_ai.move(self.player_user.own_board):
+			while self.player_ai.move():
 				print('Доска ИИ:')
 				self.player_ai.own_board.display()
 				print('Ваша доска:')
 				self.player_user.own_board.display()
-			if self.player_user.own_board.live_ships == 0:
-				print("ИИ выиграл!")
-				break
+				if self.player_user.own_board.live_ships == 0:
+					print("ИИ выиграл!")
+					return
 
 	def start(self):
 		self.greet()
